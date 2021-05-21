@@ -1,5 +1,6 @@
 // Bip C64 Edition
 // 07/05/21 maf created
+// 21/05/21 maf got keyboard code working split to own library file
 // to do:
 //		sprite x gets to 255 x 2 = 510 before going back to zero, should go back to 0 at 320
 //    Work out how to set the bits and read just the bits we're interested in
