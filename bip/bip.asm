@@ -12,7 +12,7 @@
 
 #import "..\libs\constants.asm"
 
-.const MAXTHROTTLE = 10
+.const MAXTHROTTLE = 5
 .const MINTHROTTLE = 1
 
 // -[ Begin ]-------------------------------------------------------------------
@@ -98,7 +98,7 @@ waitforraster:
 
 	ldx vInputResult
 	cpx #NOINPUT
-	beq !skip+
+	beq nokey
 
 	cpx #KEY_W							// If key W is pressed
 	bne !skip+
@@ -108,6 +108,7 @@ waitforraster:
 	bcs !skip+							// Throttle >= max so skip increase
 	inc vP0Throttle					// increase the throttle
 
+!skip:
 	cpx	#KEY_S							// See if key S is pressed
 	bne !skip+
 
@@ -116,8 +117,9 @@ waitforraster:
 	bcc !skip+							// Throttle < max so skip decrease
 	dec vP0Throttle					// decrease throttle
 
-
 !skip:
+
+nokey:
 	lda SPRITE0_XCOORD			// Fly right round and round and round
 	clc
 	adc vP0Throttle					// Add throttle to it
