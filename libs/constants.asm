@@ -1,5 +1,9 @@
-.const TEXTTOPRINT_L = $003F
-.const TEXTTOPRINT_H = $0040
+// --[ Constants ]--------------------------------------------------------------
+.const TEXTPOS_L = $00FB
+.const TEXTPOS_H = $00FC
+.const TEXTTOPRINT_L = $00FD
+.const TEXTTOPRINT_H = $00FE
+
 .const SCREEN_RAM	= $0400
 .const CURSOR_VISIBLE = $00CC
 
