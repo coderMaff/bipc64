@@ -63,28 +63,3 @@ drawhud:
 	jsr textout_init
 
 	rts
-
-welcome_text:
-	.encoding "screencode_upper"
-	.text "BIP V20210522 BY MATT BUSHELL"
-	.byte $ff
-
-throttle_text0:
-	.encoding "screencode_upper"
-	.text "THROTTLE:----"
-	.byte $ff
-
-throttle_text1:
-	.encoding "screencode_upper"
-	.text "THROTTLE:----"
-	.byte $ff
-
-speed_text0:
-	.encoding "screencode_upper"
-	.text "SPEED:----"
-	.byte $ff
-
-speed_text1:
-	.encoding "screencode_upper"
-	.text "SPEED:----"
-	.byte $ff

@@ -1,9 +1,10 @@
 // --[ Initialise ]-------------------------------------------------------------
 
 initialise:
-	lda #$00									// Black
-	sta $d020									// Load black into border
-	sta $d021 								// Load black into main screen
+	lda #BLUE
+	sta $d020									// Load into border
+	lda #BLUE
+	sta $d021 								// Load into main screen
 
 	// clear the screen
 	tax												// put accumulator of 0 into x register

@@ -24,3 +24,21 @@
 // Keyboard stuff
 .const SCNKEY = $FF9F 							// Keyboard
 .const GETIN = $FFE4 								// Get Input
+
+// Colours
+.const BLACK = $00
+.const WHITE = $01
+.const RED = $02
+.const CYAN = $03
+.const PINK = $04
+.const GREEN = $05
+.const BLUE = $06
+.const YELLOW = $07
+.const ORANGE = $08
+.const BROWN = $09
+.const PEACH = $0a
+.const DARKGREY = $0b
+.const MIDGREY = $0c
+.const LIME = $0d
+.const PURPLE = $0e
+.const GREY = $0F

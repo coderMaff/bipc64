@@ -3,6 +3,8 @@
 // 21/05/21 maf got keyboard code working split to own library file
 // to do:
 //		Keyboard delay needs to be higher
+// 		Background, look into charmaps and replacing black background
+//		Why does p1 buzz when not moving
 
 // -[ Constants ]---------------------------------------------------------------
 
@@ -34,8 +36,6 @@ BasicUpstart2(start)
 start:
 	jsr initialise
 
-	// jsr drawhud
-
 mainloop:
 
 // Draw once per screen refresh
@@ -46,7 +46,7 @@ waitforraster:
 
 	jsr handlekeys
 	jsr movesprites
-
+	jsr drawhud							// Drawing the hud kills keyboard control
 	jmp mainloop
 
 end:
@@ -54,7 +54,32 @@ end:
 
 // --[ Variables ]--------------------------------------------------------------
 
-vP0Throttle:
+welcome_text:
+	.encoding "screencode_upper"
+	.text "BIP V20210522 BY MATT BUSHELL"
+	.byte $ff
+
+throttle_text0:
+	.encoding "screencode_upper"
+	.text "THROTTLE:----"
+	.byte $ff
+
+throttle_text1:
+	.encoding "screencode_upper"
+	.text "THROTTLE:----"
+	.byte $ff
+
+speed_text0:
+	.encoding "screencode_upper"
+	.text "SPEED:----"
+	.byte $ff
+
+speed_text1:
+	.encoding "screencode_upper"
+	.text "SPEED:----"
+	.byte $ff
+
+vP0Throttle:			// $5215w
 	.byte 0
 
 vP0Speed:
@@ -70,7 +95,7 @@ vP0LastXPos:
 	.byte 0
 	.byte 0
 
-vP1Throttle:
+vP1Throttle:				// $521b
 	.byte 0
 
 vP1Speed:
@@ -84,7 +109,7 @@ vP1Score:
 
 vP1LastXPos:
 	.byte 0
-	.byte 0
+	.byte 1
 
 // sprite 0 / singlecolor / color: $01
 *=$0a00
