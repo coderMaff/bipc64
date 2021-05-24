@@ -22,33 +22,32 @@ initialise:
 	bne clearloop							// ...jumps out of the loop
 
 	//set sprites up (0)
-	lda #$01 								// sprite multicolor 1
+	lda #$01 									// sprite  multicolor 1
 	sta SPRITE_EXTRACOLOR
 
-	lda #$28   							// Sprite data is at $0a00 = $28*$40
-	sta SPRITE0_DATA				// Sprite 0
+	lda #$28				  				// Sprite data is at $0a00 / $40 = $28
+	sta SPRITE0_DATA					// Sprite 0
 
-	lda #24 								// Screen is 320x200 ($140x$C8) or ($41+Hihg Bit Setx$c8)
-	sta SPRITE0_XCOORD			// x coord low but $d010 is the x coord high bit
+	lda #24 									// Screen is 320x200 ($140x$C8) or ($41+Hihg Bit Setx$c8)
+	sta SPRITE0_XCOORD				// x coord low but $d010 is the x coord high bit
 	lda #192
-	sta SPRITE0_YCOORD			// y coord
+	sta SPRITE0_YCOORD				// y coord
 
 	//set sprites up (1)
-	lda #$2C   							// Sprite data is at $0b00 = $28*$40
-	sta SPRITE1_DATA				// Sprite 1
+	lda #$34									// Sprite data is at $0b00 / $40 = $34
+	sta SPRITE1_DATA					// Sprite 1
 
-	lda #$30								// $30 + $FF
-	sta SPRITE1_XCOORD			// x coord low but $d010 is the x coord high bit
+	lda #$30									// $30 + $FF
+	sta SPRITE1_XCOORD				// x coord low but $d010 is the x coord high bit
 
-	lda #%00000010					// Set high bit to get right side of screen
+	lda #%00000010						// Set high bit to get right side of screen
 	sta SPRITEA_XHB
 
 	lda #192
-	sta SPRITE1_YCOORD			// y coord
+	sta SPRITE1_YCOORD				// y coord
 
 	// Turn on sprites 0&1
-	lda #%00000011					// Sprite 0 & 1
-	sta SPRITE_ENABLE				// Turn on Sprite 0 & 1
-
+	lda #%00000011						// Sprite 0 & 1
+	sta SPRITE_ENABLE					// Turn on Sprite 0 & 1
 
 	rts
