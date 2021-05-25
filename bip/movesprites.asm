@@ -43,6 +43,7 @@ movesprites:
 	sta SPRITE1_XCOORD						// Store in $d000 = sprite x pos low bit
 
 	cmp vP1LastXPos
+	beq !skip+										// Hasnt moved so no need to unset high bit
 	bcc !skip+										// SPRITE1_XCOORD < vP1LastXPos so no need to unset hight bit
 
 	lda SPRITEA_XHB								// Swap the high bit

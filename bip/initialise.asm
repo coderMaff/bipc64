@@ -7,6 +7,7 @@ initialise:
 	sta $d021 								// Load into main screen
 
 	// clear the screen
+	lda #$00
 	tax												// put accumulator of 0 into x register
 	lda #$20									// Space character i.e. blank
 
@@ -14,7 +15,7 @@ initialise:
 	sta CURSOR_VISIBLE				// Store anything non 0 to hide the cursor
 
 	clearloop:
-	sta SCREEN_RAM,x					// x starts at 0 then decreases to FF then FE etc.
+	sta $0400,x								// x starts at 0 then decreases to FF then FE etc.
 	sta $0500,x								// all the way down to 0 again where it...
 	sta $0600,x
 	sta $0700,x
