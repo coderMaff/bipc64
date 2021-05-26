@@ -3,11 +3,11 @@
 // 21/05/21 maf got keyboard code working split to own library file
 // to do:
 // 		Background, look into charmaps and replacing black background
-//		Facing is 0 to 8 to match sprite directions, channge it to 00 to FF and pick the nearest sprite
 //		Make sprites move in facing direction
 //		Start using speed from throttle
 //		Display speed and throttle text
 //		movesprites should itterate through memory blocks for each player/bullet/balloon rather than do the lot long handed
+// 		Sprites rotate far to slowly
 
 // -[ Constants ]---------------------------------------------------------------
 
@@ -15,6 +15,16 @@
 
 .const MAXTHROTTLE = 5
 .const MINTHROTTLE = 1
+
+// Offsets into structure that holds sprite data
+.const OFFSET_THROTTLE = 0
+.const OFFSET_SPEED = 1
+.const OFFSET_FACING = 2
+.const OFFSET_SCORE = 3
+.const OFFSET_LASTXPOS = 4
+.const OFFSET_LASYPOS = 5
+.const OFFSET_TYPE = 6
+.const OFFSET_FSHOOT = 7
 
 // -[ Begin ]-------------------------------------------------------------------
 
@@ -29,8 +39,9 @@ BasicUpstart2(start)
 .import source "initialise.asm"
 .import source "textout.asm"
 .import source "handlekeys.asm"
-.import source "movesprites.asm"
 .import source "drawhud.asm"
+.import source "movesprites.asm"
+
 
 // -----------------------------------------------------------------------------
 
@@ -38,17 +49,17 @@ BasicUpstart2(start)
 start:
 	jsr initialise
 
-mainloop:
+mainloop:									// 523e
 
 // Draw once per screen refresh
 waitforraster:
 	lda $d012								// Grab raster position
-	cmp #208								// Check if its finished drawing play area
+	cmp #240								// Check if its finished drawing play area
 	bne waitforraster				// It hasnt
 
-	jsr handlekeys
-	jsr movesprites
-	jsr drawhud							// Drawing the hud kills keyboard control
+	jsr handlekeys					// 5091
+	jsr movesprites					// 515a
+	jsr drawhud							// 50fa
 	jmp mainloop
 
 end:
@@ -82,20 +93,22 @@ speed_text1:
 	.byte $ff
 
 vPlayer0:
-vP0Throttle:
+vP0Throttle:													// + 0 OFFSET_THROTTLE
 	.byte 0
-vP0Speed:
+vP0Speed:															// + 1 OFFSET_SPEED
 	.byte 0
-vP0Facing:
+vP0Facing:														// + 2 OFFSET_FACING
 	.byte 0
-vP0Score:
+vP0Score:															// + 3 OFFSET_SCORE
 	.byte 0
-vP0LastXPos:
+vP0LastXPos:													// + 4 OFFSET_LASTXPOS
 	.byte 0
 	.byte 0
-vP0Type:
+vP0LastYPos:													// + 5 OFFSET_LASYPOS
+	.byte 0
+vP0Type:															// + 6 OFFSET_TYPE
 	.byte 0															// Type 0 Right facing sprite
-vP0fShooting:
+vP0fShooting:													// + 7 OFFSET_FSHOOT
 	.byte 0
 
 vPlayer1:
@@ -104,19 +117,21 @@ vP1Throttle:
 vP1Speed:
 	.byte 0
 vP1Facing:
-	.byte 0
+	.byte 127
 vP1Score:
 	.byte 0
 vP1LastXPos:
 	.byte 0
 	.byte 1
+vP1LastYPos:													// + 5
+	.byte 0
 vP1Type:
 	.byte 1															// Type 1 Left facing sprite
 vP1fShooting:
 	.byte 0
 
-// sprite 0 / singlecolor / color: $01	/ Right
-*=$0a00
+// sprite 0 Right
+*=$0a00 "sprite0_r"
 	.byte %00000000,%00000000,%00000000
 	.byte %00000000,%00000000,%00000000
 	.byte %00000000,%00000000,%00000000
@@ -140,7 +155,7 @@ vP1fShooting:
 	.byte %00000000,%00111100,%00000000
 
 // Sprite 0 Right up
-*=$0a40
+*=$0a40 "sprite0_ru"
 	.byte %00000000,%00000000,%00000000
 	.byte %00000000,%00000000,%00000000
 	.byte %00000000,%00000110,%00011100
@@ -164,7 +179,7 @@ vP1fShooting:
 	.byte %00000000,%00000000,%00000000
 
 // Sprite 0 Up
-*=$0a80
+*=$0a80 "sprite0_u"
 	.byte %00000000,%00000000,%11000000
 	.byte %00000000,%00000001,%11100000
 	.byte %00000000,%00100001,%11100000
@@ -188,7 +203,7 @@ vP1fShooting:
 	.byte %00000000,%00001111,%10000000
 
 	// Sprite 0 Up Left
-*=$0ac0
+*=$0ac0 "sprite0_ul"
 	.byte %00011100,%00000000,%00000000
 	.byte %00111110,%00000001,%00000000
 	.byte %00111111,%00000001,%10000000
@@ -213,7 +228,7 @@ vP1fShooting:
 
 
 // Sprite 0 Left
-*=$0b00
+*=$0b00 "sprite0_l"
 	.byte %00000000,%00111100,%00000000
 	.byte %00000000,%00011000,%00000000
 	.byte %00000000,%00000000,%00000000
@@ -237,7 +252,7 @@ vP1fShooting:
 	.byte %00000000,%00000000,%00000000
 
 // Sprite 0 Left Down
-*=$0b40
+*=$0b40 "sprite0_ld"
 	.byte %00000000,%00000000,%00000000
 	.byte %00000000,%00000000,%01000000
 	.byte %00000000,%00000001,%11110000
@@ -261,7 +276,7 @@ vP1fShooting:
 	.byte %00000000,%00000000,%00000000
 
 // Sprite 0 Down
-*=$0b80
+*=$0b80 "sprite0_d"
 	.byte %00000001,%11110000,%00000000
 	.byte %00000111,%11111100,%00000000
 	.byte %00000111,%11111100,%00000000
@@ -285,7 +300,7 @@ vP1fShooting:
 	.byte %00000011,%00000000,%00000000
 
 // Sprite 0 Down Right
-*=$0bc0
+*=$0bc0 "sprite0_dr"
 	.byte %00001110,%00000000,%00000000
 	.byte %00001110,%00000000,%00000000
 	.byte %00011110,%00000000,%00000000
@@ -312,7 +327,7 @@ vP1fShooting:
 	.byte %00000000,%00000000,%00000000
 
 // sprite 1 / singlecolor / left
-*=$0d00
+*=$0d00 "sprite1_l"
 	.byte %00000000,%00000000,%00000000
 	.byte %00000000,%00000000,%00000000
 	.byte %00000000,%00000000,%00000000
@@ -336,7 +351,7 @@ vP1fShooting:
 	.byte %00000000,%00111100,%00000000
 
 // Sprite 1 left down
-*=$0d40
+*=$0d40 "sprite1_ld"
 	.byte %00000000,%00000011,%11000000
 	.byte %00000000,%00000011,%11000000
 	.byte %00000000,%00000001,%11100000
@@ -360,7 +375,7 @@ vP1fShooting:
 	.byte %00011100,%00000000,%00000000
 
 // Sprite 1 down
-*=$0d80
+*=$0d80 "sprite1_d"
 	.byte %00000000,%00001111,%10000000
 	.byte %00000000,%00111111,%11100000
 	.byte %00000000,%00111111,%11100000
@@ -384,7 +399,7 @@ vP1fShooting:
 	.byte %00000000,%00000000,%11000000
 
 	// Sprite 1 down right
-*=$0dc0
+*=$0dc0 "sprite1_dr"
 	.byte %00000000,%00000000,%00000000
 	.byte %00000010,%00000000,%00000000
 	.byte %00001111,%10000000,%00000000
@@ -408,7 +423,7 @@ vP1fShooting:
 	.byte %00000000,%00000000,%00000000
 
 // Sprite 1 Right
-*=$0e00
+*=$0e00 "sprite1_r"
 	.byte %00000000,%00111100,%00000000
 	.byte %00000000,%00011000,%00000000
 	.byte %00000000,%00000000,%00000000
@@ -432,7 +447,7 @@ vP1fShooting:
 	.byte %00000000,%00000000,%00000000
 
 // Sprite 1 Right up
-*=$0e40
+*=$0e40 "sprite1_ru"
 	.byte %00000000,%00000001,%11000000
 	.byte %00000100,%00000011,%11100000
 	.byte %00001100,%00000111,%11100000
@@ -456,7 +471,7 @@ vP1fShooting:
 	.byte %00011110,%00000000,%00000000
 
 // Sprite 1 up
-*=$0e80
+*=$0e80 "sprite1_u"
 	.byte %00000011,%00000000,%00000000
 	.byte %00000111,%10000000,%00000000
 	.byte %00000111,%10000100,%00000000
@@ -480,7 +495,7 @@ vP1fShooting:
 	.byte %00000001,%11110000,%00000000
 
 // Sprite 1 up left
-*=$0ec0
+*=$0ec0 "sprite1_ul"
 	.byte %00000000,%00000000,%00000000
 	.byte %00000000,%00000000,%00000000
 	.byte %00111000,%01100000,%00000000
