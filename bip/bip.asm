@@ -8,12 +8,12 @@
 //		Display speed and throttle text
 //		movesprites should itterate through memory blocks for each player/bullet/balloon rather than do the lot long handed
 // 		Sprites rotate far to slowly
-
+		
 // -[ Constants ]---------------------------------------------------------------
 
 #import "..\libs\constants.asm"
 
-.const MAXTHROTTLE = 5
+.const MAXTHROTTLE = 80						// 5 * 16 = 80 (5 * F = 50)
 .const MINTHROTTLE = 1
 
 // Offsets into structure that holds sprite data
@@ -36,6 +36,7 @@ BasicUpstart2(start)
 
 .import source "..\libs\input.asm"
 
+.import source "maths.asm"
 .import source "initialise.asm"
 .import source "textout.asm"
 .import source "handlekeys.asm"
@@ -74,22 +75,22 @@ welcome_text:
 
 throttle_text0:
 	.encoding "screencode_upper"
-	.text "THROTTLE:----"
+	.text "THROTTLE:-----"
 	.byte $ff
 
 throttle_text1:
 	.encoding "screencode_upper"
-	.text "THROTTLE:----"
+	.text "THROTTLE:-----"
 	.byte $ff
 
 speed_text0:
 	.encoding "screencode_upper"
-	.text "SPEED:----"
+	.text "SPEED:-----"
 	.byte $ff
 
 speed_text1:
 	.encoding "screencode_upper"
-	.text "SPEED:----"
+	.text "SPEED:-----"
 	.byte $ff
 
 vPlayer0:
@@ -128,6 +129,9 @@ vP1LastYPos:													// + 5
 vP1Type:
 	.byte 1															// Type 1 Left facing sprite
 vP1fShooting:
+	.byte 0
+
+vTempByte:
 	.byte 0
 
 // sprite 0 Right

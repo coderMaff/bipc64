@@ -1,7 +1,7 @@
 // Keyboard / Joystick scan routines
 
 .const KEYPRESSED  = $cb
-.const INPUTDELAY = 2
+.const INPUTDELAY = 1
 .const NOINPUT = 253
 
 .const KEY_DEL = 0

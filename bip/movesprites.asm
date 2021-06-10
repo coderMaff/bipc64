@@ -4,12 +4,102 @@
 //				 need some sort of lookup table
 //				 then see bipCalcMovement of original game
 
+/*
+int bipCalcMovement(double deg, float partspeed, float *xx, float *yy)
+{
+// deg = vPlayer0 + OFFSET_FACING
+// parspeed = vPlayer0 + OFFSET_SPEED
+// the returned value is added to the existing location
+
+// 0 to 64 degrees
+	if (( deg >= 0 ) && ( deg <= 64 ))
+	{
+		*xx -= ( 64 - deg ) * partspeed;
+		*yy -= ( deg ) * partspeed;
+	}
+	else
+// 64 to 128 degrees
+	if ((deg >= 64 ) && ( deg <= 128 ))
+	{
+		deg -= 64;
+		*xx += ( deg ) * partspeed;
+		*yy -= ( 64 - deg ) * partspeed;
+	}
+	else
+// 128 to 192 degrees
+	if ((deg >= 128 ) && ( deg <= 192 ))
+	{
+		deg -= 128;
+		*xx += ( 64 - deg ) * partspeed;
+		*yy += ( deg ) * partspeed;
+	}
+	else
+// 192 to 256 degrees
+	if (( deg >= 192 ) && ( deg <= 256 ))
+	{
+		deg -= 192;
+		*xx -= ( deg ) * partspeed;
+		*yy += ( 64 - deg ) * partspeed;
+	}
+
+	return 0;
+}
+
+NB bcs is >=
+   bcc is <
+
+	 sbc is subtract from accumulator - remember to set the carry flag first
+*/
+
+calcmovement:
+	lda vPlayer0 + OFFSET_FACING				// 5188
+	cmp #65
+	bcs gteq65
+																			// Plane is facing 0 to 64 degrees
+																			// *xx -= ( 64 - vPlayer0+OFFSET-FACING ) * vPlayer0 + OFFSET_SPEED;
+																			// *yy -= ( vPlayer0+OFFSET-FACING ) * vPlayer0 + OFFSET_SPEED;
+	sta $00FB														// Store vPlayer0+OFFSET_FACING in zero page
+	lda 64															// Store 64 in acc
+	sec																	// Set the carry flag
+	sbc $00FB														// Remove vPlayer0+OFFSET-FACING from 64 so our sum is now *xx -= ( accumulator * vPlayer0 + OFFSET_SPEED);
+																			// GOT AS FAR AS THIS
+																			// So we can do a loop and add vPlayer0 + OFFSET_SPEED on accumulator times, so loop will be between 0 and 64 cycles
+																			// Or we can use some form of lookup
+	jmp finished
+
+gteq65:
+	cmp #129
+	bcs gteq129
+																			// Plane is facing 64 to 128 degrees
+	jmp finished
+
+gteq129:
+	cmp #193
+	bcs gteq193
+																			// Plane is facing 128 to 192 degrees
+	jmp finished
+gteq193:
+																			// Plane is facing 192 to 256 degrees
+
+finished:
+	nop
+	nop
+	nop
+	rts
+
 // Player 0
 movesprites:
+	lda vPlayer0 + OFFSET_THROTTLE			// Grab throttle position
+	jsr divideby10											// Divide by 10
+	sta vPlayer0 + OFFSET_SPEED					// Store in speed
+
+ 	jsr calcmovement
+
+// Replace with bipCalMovement above
 	lda SPRITE0_XCOORD									// Fly right round and round and round
 	sta vPlayer0 + OFFSET_LASTXPOS
 	clc
-	adc vPlayer0 + OFFSET_THROTTLE			// Add throttle to it
+	adc vPlayer0 + OFFSET_SPEED					// Add throttle to it
 	sta SPRITE0_XCOORD									// Store in $d000 = sprite x pos low bit
 	cmp vPlayer0 + OFFSET_LASTXPOS
 	bcs !skip+													// SPRITE0_XCOORD > vPOLastXPos so no need to set hight bit
@@ -17,6 +107,7 @@ movesprites:
 	eor #%00000001
 	sta SPRITEA_XHB
 	inc vPlayer0 + OFFSET_LASTXPOS + 1
+// Replace with bipCalcMovcement above
 
 !skip:																// Check if we're over 65
 	lda vPlayer0 + OFFSET_LASTXPOS + 1	// See if were more than 255 across the screen
@@ -34,10 +125,14 @@ movesprites:
 
 // Player 1
 !skip:
+	lda vPlayer1 + OFFSET_THROTTLE			// Grab throttle position
+	jsr divideby10											// Divide by 10
+	sta vPlayer1 + OFFSET_SPEED					// Store in speed
+
 	lda SPRITE1_XCOORD									// Fly left round and round and round  $511c
 	sta vPlayer1 + OFFSET_LASTXPOS
 	sec																	// Set the carry flag
-	sbc vPlayer1 + OFFSET_THROTTLE											// Subtract the throttle
+	sbc vPlayer1 + OFFSET_SPEED					// Subtract the speed
 	sta SPRITE1_XCOORD									// Store in $d000 = sprite x pos low bit
 	cmp vPlayer1 + OFFSET_LASTXPOS
 	beq !skip+													// Hasnt moved so no need to unset high bit
