@@ -7,8 +7,9 @@
 //		Start using speed from throttle
 //		Display speed and throttle text
 //		movesprites should itterate through memory blocks for each player/bullet/balloon rather than do the lot long handed
-// 		Sprites rotate far to slowly
-		
+// 		Sprites rotate far too slowly
+//		Try using a lookup table rather than doing lots of complex maths
+
 // -[ Constants ]---------------------------------------------------------------
 
 #import "..\libs\constants.asm"
@@ -521,3 +522,93 @@ vTempByte:
 	.byte %00000000,%00000001,%11110000
 	.byte %00000000,%00000000,%01000000
 	.byte %00000000,%00000000,%00000000
+
+// Movement lookup table
+//		164		 190		222
+//				\		|		/
+//					\	|	/
+//	128------ + ------- 0
+//					/ | \
+//				 /	|   \
+//			96		64    32
+//
+// * Sprites facing in different directions traslate facing 0-255 into a direction and sprite
+// 1 $0a00 = facing right 				> 238 || >= 0 && <= 16 - Put this last (otherwise this!)
+
+// 2 $0a40 = facing right up 			> 206 && <= 238
+// 3 $0a80 = facing up						> 180 && <= 206
+// 4 $0ac0 = facing left up				>	144 && <= 180
+// 5 $0b00 = facing left					> 112 && <= 144
+// 6 $0b40 = facing left down 		>  80 && <= 112
+// 7 $0b80 = facing down 					>  48 && <= 80
+// 8 $0bc0 = facing right & down 	>  16 && <= 48
+
+*=$0f00	"movement_x"
+	.byte 1													// 0
+	.byte 1													// 1
+	.byte 1													// 2
+	.byte 1													// 3
+	.byte 1													// 4
+	.byte 1													// 5
+	.byte 1													// 6
+	.byte 1													// 7
+	.byte 1													// 8
+	.byte 1													// 9
+	.byte 1													// 10
+	.byte 1													// 11
+	.byte 1													// 12
+	.byte 1													// 13
+	.byte 1													// 14
+	.byte 1													// 15
+	.byte 1													// 16
+	.byte 1													// 17
+	.byte 1													// 18
+	.byte 1													// 19
+	.byte 1													// 20
+	.byte 1													// 21
+	.byte 1													// 22
+	.byte 1													// 23
+	.byte 1													// 24
+	.byte 1													// 25
+	.byte 1													// 26
+	.byte 1													// 27
+	.byte 1													// 28
+	.byte 1													// 29
+	.byte 1													// 30
+	.byte 1													// 31
+	.byte 1													// 32
+
+*=$1000	"movement_y"
+	.byte 0													// 0
+	.byte 0													// 1
+	.byte 0													// 2
+	.byte 0													// 3
+	.byte 0													// 4
+	.byte 0													// 5
+	.byte 0													// 6
+	.byte 0													// 7
+	.byte 0													// 8
+	.byte 0													// 9
+	.byte 0													// 10
+	.byte 0													// 11
+	.byte 0													// 12
+	.byte 0													// 13
+	.byte 0													// 14
+	.byte 0													// 15
+	.byte 1													// 16
+	.byte 1													// 17
+	.byte 1													// 18
+	.byte 1													// 19
+	.byte 1													// 20
+	.byte 1													// 21
+	.byte 1													// 22
+	.byte 1													// 23
+	.byte 1													// 24
+	.byte 1													// 25
+	.byte 1													// 26
+	.byte 1													// 27
+	.byte 1													// 28
+	.byte 1													// 29
+	.byte 1													// 30
+	.byte 1													// 31
+	.byte 1													// 32

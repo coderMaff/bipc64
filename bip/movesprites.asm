@@ -93,13 +93,16 @@ movesprites:
 	jsr divideby10											// Divide by 10
 	sta vPlayer0 + OFFSET_SPEED					// Store in speed
 
- 	jsr calcmovement
+// jsr calcmovement
 
-// Replace with bipCalMovement above
 	lda SPRITE0_XCOORD									// Fly right round and round and round
 	sta vPlayer0 + OFFSET_LASTXPOS
 	clc
-	adc vPlayer0 + OFFSET_SPEED					// Add throttle to it
+	//adc vPlayer0 + OFFSET_SPEED					// Add throttle to it
+	//adc $0f00
+
+	ldy vPlayer0 + OFFSET_FACING
+	adc ($0f00),y
 	sta SPRITE0_XCOORD									// Store in $d000 = sprite x pos low bit
 	cmp vPlayer0 + OFFSET_LASTXPOS
 	bcs !skip+													// SPRITE0_XCOORD > vPOLastXPos so no need to set hight bit
